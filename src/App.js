@@ -69,7 +69,7 @@ if(currentTitle && value && message){
     ]
   ))
 }
-}, [message,currentTitle])
+}, [message,currentTitle, value])
 
 console.log(previousChats)
 
