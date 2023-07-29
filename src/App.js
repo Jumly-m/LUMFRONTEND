@@ -1,7 +1,7 @@
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+
 import SideDetails from './components/sidedetails';
 import SocialMedia from './components/socialmedia';
 
@@ -10,7 +10,8 @@ function App() {
   const [message, setMessage] = useState(null);
   const [previousChats, setPreviousChats] = useState([]);
   const [currentTitle, setCurrentTitle] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false); // state variable for processing status
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false); // state variable for disabling input field and send button
 
   const createNewChat = () => {
     setMessage(null);
@@ -25,7 +26,8 @@ function App() {
   };
 
   const getMessages = async () => {
-    setIsProcessing(true); // set processing status to true
+    setIsProcessing(true);
+    setIsDisabled(true); // disable input field and send button
     const options = {
       method: 'POST',
       body: JSON.stringify({
@@ -42,7 +44,18 @@ function App() {
     } catch (error) {
       console.error(error);
     } finally {
-      setIsProcessing(false); // set processing status to false
+      setIsProcessing(false);
+      setIsDisabled(false); // enable input field and send button
+    }
+  };
+
+  const handleTyping = (event) => {
+    setValue(event.target.value);
+  };
+
+  const handleBlur = () => {
+    if (value) {
+      getMessages();
     }
   };
 
@@ -68,11 +81,8 @@ function App() {
     }
   }, [message, currentTitle, value]);
 
-  console.log(previousChats);
-
   const currentChat = previousChats.filter((previousChat) => previousChat.title === currentTitle);
   const uniqueTitles = Array.from(new Set(previousChats.map((previousChat) => previousChat.title)));
-  console.log(uniqueTitles);
 
   return (
     <div className="main-container">
@@ -101,8 +111,8 @@ function App() {
           </ul>
           <div className="bottom-section">
             <div className="input-container">
-              <textarea className="input" placeholder="I am Luminai your education assistant how can i help you?" value={value} onChange={(e) => setValue(e.target.value)} />
-              <div id="submit" onClick={getMessages}>
+              <textarea className="input" placeholder="I am Luminai your education assistant how can i help you?" value={value} onChange={handleTyping} onBlur={handleBlur} disabled={isDisabled} />
+              <div id="submit" onClick={getMessages} className={isDisabled ? 'disabled' : ''}>
                 {isProcessing ? <div className="spinner"></div> : <FontAwesomeIcon icon={faPaperPlane} size="" style={{ backgroundColor: 'transparent' }} />}
               </div>
             </div>
